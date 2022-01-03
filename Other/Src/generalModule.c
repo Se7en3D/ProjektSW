@@ -41,7 +41,13 @@ void generalModuleInit(controlPeripheralStruct *peripheralStruct,UART_HandleType
                     ( void * ) 1,    /* Parameter passed into the task. */
                     tskIDLE_PRIORITY+1,/* Priority at which the task is created. */
                     &xTaskSendRespond );      /* Used to pass out the created task's handle. */
-
+	xTaskCreate(
+						vTaskGPIOController,       /* Function that implements the task. */
+	                    "wywolanie",          /* Text name for the task. */
+						configMINIMAL_STACK_SIZE+100,      /* Stack size in words, not bytes. */
+	                    ( void * ) 1,    /* Parameter passed into the task. */
+	                    tskIDLE_PRIORITY+1,/* Priority at which the task is created. */
+	                    &xTaskWywolanie );      /* Used to pass out the created task's handle. */
 	decoderInitStructure(&decoderGeneralStructure);
 }
 
@@ -73,6 +79,14 @@ void vTaskDecodeData(){
 		}
 		vTaskDelay(1/portTICK_RATE_MS);
 	};
+}
+void vTaskGPIOController(){
+while (1){
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
+	vTaskDelay(1000/portTICK_RATE_MS);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
+	vTaskDelay(1000/portTICK_RATE_MS);
+}
 }
 void vTaskSendRespons(){
 	static uint8_t data;

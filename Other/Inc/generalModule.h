@@ -26,8 +26,9 @@ xQueueHandle xQueueUartPCRx;
 xTaskHandle xTaskDecodeData;
 xTaskHandle xTaskSendRespond;
 xQueueHandle xQueueUartPCTx;
+xTaskHandle xTaskWywolanie;
 
-
+void vTaskGPIOController();
 void vTaskDecodeData();
 void vTaskSendRespons();
 void generalModuleInit(controlPeripheralStruct *peripheralStruct,UART_HandleTypeDef *huart);
