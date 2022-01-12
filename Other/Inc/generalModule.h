@@ -1,11 +1,36 @@
+/**
+  ******************************************************************************
+  * @file    generalModule.h
+  * @author  Daniel Dunak, Michał Kuska
+  * @brief   Plik naglowkowy modulu zawierajacy taski oraz kolejki
+  ******************************************************************************
+  * @attention
+    * PC1 -> Dioda nr.0 <br>
+  * PC3	-> Dioda nr.1 <br>
+  * PA1	-> Dioda nr.2 <br>
+  * PA3	-> Dioda nr.3 <br>
+  * PA5	-> Dioda nr.4 <br>
+  * PA7	-> Dioda nr.5 <br>
+  * PC5	-> Dioda nr.6 <br>
+  * PB1	-> Dioda nr.7 <br>
+  * PC12 -> UART5_TX <br>
+  * PD2	-> UART5_RX <br>
+  *
+  ******************************************************************************
+  */
+
+/* Includes ------------------------------------------------------------------*/
 #include "decoder.h"
 #include "circularBuffer.h"
 #include "cmsis_os.h"
-//size buffer to receive from uart interrupt
-#define SIZE_BUFFER_TO_RECEIVE_FROM_UART_INNTERUPT 1
-#define SIZE_XQUEUEUARTPCRX 20
-#define SIZE_XQUEUEUARTPCTX 150
-#define SIZE_BUF_FOR_SENDING_DATA 150
+
+/* Exported constants --------------------------------------------------------*/
+#define SIZE_BUFFER_TO_RECEIVE_FROM_UART_INNTERUPT 1 /*!< Rozmiar buforu do odbierania danych
+ 	 	 	 	 	 	 	 	 	 	 	 	 	 	 z przerwania od odbiornika UART poprzez
+ 	 	 	 	 	 	 	 	 	 	 	 	 	 	 interfejs HAL*/
+#define SIZE_XQUEUEUARTPCRX 20 /*!< Rozmiar kolejki do dekodera komend*/
+#define SIZE_XQUEUEUARTPCTX 150/*!<* Rozmiar kolejki do wysyłania danych poprzez interfejs UART*/
+
 
 
 
@@ -13,21 +38,23 @@
 #error "zmienna SIZE_BUFFER_TO_RECEIVE_FROM_UART_INNTERUPT nie może byc równa 0"
 #endif
 
+/**
+ * Struktura kontrolujaca interfejs UART
+ */
 typedef struct{
-	UART_HandleTypeDef *huart;
-	uint8_t *pDataToRxhuart;
-	uint16_t sizepDataToRxHuart;
+	UART_HandleTypeDef *huart;	/*!< Wzkażnik do struktury UART_HandleTypeDef*/
+	uint8_t *pDataToRxhuart; /*!< Wzkażnik do bufora danych wykorzystywanych w przerwaniu odbiornika UART */
+	uint16_t sizepDataToRxHuart;/*!<Rozmiar bufora danych którego wzkażnikiem jest pDataToRxhuart*/
 }controlPeripheralStruct;
 
-decoderStructure decoderGeneralStructure;
-controlPeripheralStruct peripheralStruct;
-bufferStructure bufStruct;
-xQueueHandle xQueueUartPCRx;
-xTaskHandle xTaskDecodeData;
-xTaskHandle xTaskSendRespond;
-xQueueHandle xQueueUartPCTx;
-xQueueHandle xQueueCommand;
-xTaskHandle xTaskWywolanie;
+decoderStructure decoderGeneralStructure; /*!<Struktura dekodera*/
+controlPeripheralStruct peripheralStruct;/*!<Struktura kontrolera UART*/
+xQueueHandle xQueueUartPCRx;/*!<Kolejki do dokodera*/
+xTaskHandle xTaskDecodeData;/*!<Task dekodera*/
+xTaskHandle xTaskSendRespond;/*!<Task wysyłania odpowiedzi*/
+xQueueHandle xQueueUartPCTx;/*!<Kolejka do wysyłania odpowiedzi*/
+xQueueHandle xQueueCommand;/*!<Kolejka do przekazywania rozkazów wymagających zmiany Diod*/
+xTaskHandle xTaskWywolanie;/*!<Task do konfiguracji wyjści GPIO*/
 
 void vTaskGPIOController();
 void vTaskDecodeData();

@@ -15,8 +15,6 @@ void generalModuleInit(controlPeripheralStruct *peripheralStruct,UART_HandleType
 	peripheralStruct->pDataToRxhuart=((uint8_t*) malloc(SIZE_BUFFER_TO_RECEIVE_FROM_UART_INNTERUPT));
 	peripheralStruct->sizepDataToRxHuart=SIZE_BUFFER_TO_RECEIVE_FROM_UART_INNTERUPT;
 
-		//Inicjalizacja struktury bufferStructure wykorzystywana do wysyłania danych przez UART
-	circularBufferInitBuf(&bufStruct, SIZE_BUF_FOR_SENDING_DATA);
 
 	generalModuleUartReceiveIt(peripheralStruct);
 	xQueueUartPCRx = xQueueGenericCreate(
@@ -110,6 +108,11 @@ int __io_putchar(int ch){
   xQueueGenericSend(xQueueUartPCTx,&castCh,pdFALSE,queueSEND_TO_BACK);
   return 1;
 }
+/**
+  * @brief
+  * @param  uint8_t Komenda dekodera
+  * @retval None
+  */
 void switchGPIO(uint8_t rozkaz){ //funkcja oczekuje na wartość int rozkazu pochodzącą z zewnętrznego źródła
 	//funkcja switchGPIO wykorzystuje wbudowaną funkcję HAL
 	switch (rozkaz)	{
