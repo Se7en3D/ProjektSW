@@ -27,6 +27,10 @@ void generalModuleInit(controlPeripheralStruct *peripheralStruct,UART_HandleType
 					SIZE_XQUEUEUARTPCTX,
 					sizeof(uint8_t),
 					(uint8_t)0);
+	xQueueCommand =xQueueGenericCreate(
+						SIZE_XQUEUEUARTPCTX,
+						sizeof(uint8_t),
+						(uint8_t)0);
 	xTaskCreate(
 					vTaskDecodeData,       /* Function that implements the task. */
                     "DecoderData",          /* Text name for the task. */
@@ -69,11 +73,11 @@ void vTaskDecodeData(){
 			decoderAddNextSign(&decoderGeneralStructure,&data);
 			if(decoderIsEndDecode(&decoderGeneralStructure)){
 				uint8_t decodeValue=decoderGetDecodeValue(&decoderGeneralStructure);
-				printf("Wartosc do wyslania=%x\n",decodeValue);
+				//printf("Wartosc do wyslania=%x\n",decodeValue);
 				if(decodeValue==COMMAND_AT){
 					printf("Wspanialy projekt D.D. M.K.\n");
 				}else{
-					//TODO dodać kod dla GPIO
+					 xQueueGenericSend(xQueueCommand,&decodeValue,pdFALSE,queueSEND_TO_BACK);
 				}
 			}
 		}
@@ -81,12 +85,13 @@ void vTaskDecodeData(){
 	};
 }
 void vTaskGPIOController(){
-while (1){
-	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
-	vTaskDelay(1000/portTICK_RATE_MS);
-	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
-	vTaskDelay(1000/portTICK_RATE_MS);
-}
+	static uint8_t data;
+	while (1){
+		if(xQueueReceive(xQueueCommand, &data, pdFALSE)){
+			switchGPIO(data);
+			vTaskDelay(100/portTICK_RATE_MS);
+		}
+	}
 }
 void vTaskSendRespons(){
 	static uint8_t data;
@@ -105,3 +110,81 @@ int __io_putchar(int ch){
   xQueueGenericSend(xQueueUartPCTx,&castCh,pdFALSE,queueSEND_TO_BACK);
   return 1;
 }
+void switchGPIO(uint8_t rozkaz){ //funkcja oczekuje na wartość int rozkazu pochodzącą z zewnętrznego źródła
+	//funkcja switchGPIO wykorzystuje wbudowaną funkcję HAL
+	switch (rozkaz)	{
+	case 0x10: //zapalenie diody 0 ->PC1
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
+		break;
+	case 0x11: //zapalenie diody 1 ->PC3
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_SET);
+		break;
+	case 0x12: //zapalenie diody 2 ->PA1
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
+		break;
+	case 0x13: //zapalenie diody 3 ->PA3
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
+		break;
+	case 0x14: //zapalenie diody 4 ->PA5
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+		break;
+	case 0x15: //zapalenie diody 5 ->PA7
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);
+		break;
+	case 0x16: //zapalenie diody 6 ->PC5
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_5, GPIO_PIN_SET);
+		break;
+	case 0x17: //zapalenie diody 7 ->PB1
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
+		break;
+	case 0x20: //zgaszenie diody 0 ->PC1
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
+		break;
+	case 0x21: //zgaszenie diody 1 ->PC3
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_RESET);
+		break;
+	case 0x22: //zgaszenie diody 2 ->PA1
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
+		break;
+	case 0x23: //zgaszenie diody 3 ->PA3
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
+		break;
+	case 0x24: //zgaszenie diody 4 ->PA5
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+		break;
+	case 0x25: //zgaszenie diody 5 ->PA7
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
+		break;
+	case 0x26: //zgaszenie diody 6 ->PC5
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_5, GPIO_PIN_RESET);
+		break;
+	case 0x27: //zgaszenie diody 7 ->PB1
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
+		break;
+
+	case 0x30: //zapalenie wszystkich wyjść
+		switchGPIO(0x10); //zapalenie diody 0 ->PC1
+		switchGPIO(0x11); //zapalenie diody 1 ->PC3
+		switchGPIO(0x12); //zapalenie diody 2 ->PA1
+		switchGPIO(0x13); //zapalenie diody 3 ->PA3
+		switchGPIO(0x14); //zapalenie diody 4 ->PA5
+		switchGPIO(0x15); //zapalenie diody 5 ->PA7
+		switchGPIO(0x16); //zapalenie diody 6 ->PC5
+		switchGPIO(0x17); //zapalenie diody 7 ->PB1
+		break;
+
+	case 0x31: //zgaszenie wszystkich wyjść
+		switchGPIO(0x20); //zgaszenie diody 0 ->PC1
+		switchGPIO(0x21); //zgaszenie diody 1 ->PC3
+		switchGPIO(0x22); //zgaszenie diody 2 ->PA1
+		switchGPIO(0x23); //zgaszenie diody 3 ->PA3
+		switchGPIO(0x24); //zgaszenie diody 4 ->PA5
+		switchGPIO(0x25); //zgaszenie diody 5 ->PA7
+		switchGPIO(0x26); //zgaszenie diody 6 ->PC5
+		switchGPIO(0x27); //zgaszenie diody 7 ->PB1
+		break;
+
+
+	}
+}
+

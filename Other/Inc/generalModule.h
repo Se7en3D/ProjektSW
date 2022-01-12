@@ -26,6 +26,7 @@ xQueueHandle xQueueUartPCRx;
 xTaskHandle xTaskDecodeData;
 xTaskHandle xTaskSendRespond;
 xQueueHandle xQueueUartPCTx;
+xQueueHandle xQueueCommand;
 xTaskHandle xTaskWywolanie;
 
 void vTaskGPIOController();
@@ -36,3 +37,4 @@ int __io_putchar(int ch);
 void generalModuleUartRxInterrupt(controlPeripheralStruct *peripheralStruct);
 
 void generalModuleUartReceiveIt(controlPeripheralStruct *peripheralStruct);
+void switchGPIO(uint8_t rozkaz);
