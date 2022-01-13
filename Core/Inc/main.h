@@ -68,6 +68,14 @@ void Error_Handler(void);
 #define DIODE_NR_2_GPIO_Port GPIOA
 #define DIODE_NR_3_Pin GPIO_PIN_3
 #define DIODE_NR_3_GPIO_Port GPIOA
+#define DIODE_NR_4_Pin GPIO_PIN_5
+#define DIODE_NR_4_GPIO_Port GPIOA
+#define DIODE_NR_5_Pin GPIO_PIN_7
+#define DIODE_NR_5_GPIO_Port GPIOA
+#define DIODE_NR_6_Pin GPIO_PIN_5
+#define DIODE_NR_6_GPIO_Port GPIOC
+#define DIODE_NR_7_Pin GPIO_PIN_1
+#define DIODE_NR_7_GPIO_Port GPIOB
 #define BOOT1_Pin GPIO_PIN_2
 #define BOOT1_GPIO_Port GPIOB
 #define LD4_Pin GPIO_PIN_12

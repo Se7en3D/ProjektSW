@@ -176,7 +176,7 @@ void switchGPIO(uint8_t rozkaz){ //funkcja oczekuje na wartość int rozkazu poc
 		switchGPIO(0x17); //zapalenie diody 7 ->PB1
 		break;
 
-	case 0x31: //zgaszenie wszystkich wyjść
+	case 0x40: //zgaszenie wszystkich wyjść
 		switchGPIO(0x20); //zgaszenie diody 0 ->PC1
 		switchGPIO(0x21); //zgaszenie diody 1 ->PC3
 		switchGPIO(0x22); //zgaszenie diody 2 ->PA1
