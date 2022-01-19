@@ -1,9 +1,21 @@
+/**
+  ******************************************************************************
+  * @file    decoder.c
+  * @author  Daniel Dunak, Michal Kuska
+  * @brief   Plik zrodlowy dekodera
+  *
+  ******************************************************************************
+  */
 #include <stdio.h>
 #include "stm32f4xx_hal.h"
 #include <stdlib.h>
 #include "decoder.h"
 
-
+/**
+  * @brief  Funkcja inicalizujaca strukture decoderStructure
+  * @param  decoderGeneralStructure wzkaznik do decoderStructure
+  * @retval None
+  */
 void decoderInitStructure(decoderStructure* decoderGeneralStructure) {
 	uint8_t sizeTableOdRejectedCommands = (sizeof(decoderArrayOfCommand) /sizeof(decoderArrayOfCommand[0])/sizeof(uint8_t));
 	if (decoderGeneralStructure->tableOfRejectedCommands !=0) {
@@ -14,7 +26,12 @@ void decoderInitStructure(decoderStructure* decoderGeneralStructure) {
 	decoderGeneralStructure->sizeTableOdRejectedCommands = sizeTableOdRejectedCommands;
 	decoderClearStructure(decoderGeneralStructure);
 }
-
+/**
+  * @brief  Funkcja dekodujaca kolejny znak
+  * @param  decoderGeneralStructure wzkaznik do decoderStructure
+  * @param letter wzkaznik na kolejny znak do dekodawania
+  * @retval None
+  */
 void decoderAddNextSign(decoderStructure *decoderGeneralStructure, uint8_t* letter) {
 	uint8_t positionOfDecodeCommand = decoderGeneralStructure->positionOfDecodeCommand;
 	uint8_t sign = *letter;
@@ -59,7 +76,11 @@ void decoderAddNextSign(decoderStructure *decoderGeneralStructure, uint8_t* lett
 	decoderGeneralStructure->positionOfDecodeCommand=positionOfDecodeCommand;
 
 }
-
+/**
+  * @brief  Funkcja Wyswietlajaca stan dekodera Wykorzystywana tylko do testowania
+  * @param  what wartosc
+  * @retval None
+  */
 void decoderSendAnswer(uint8_t what) {
 	switch (what) {
 	case DECODE_ANSWER_ERROR:
@@ -79,16 +100,29 @@ void decoderSendAnswer(uint8_t what) {
 		break;
 	};
 }
-
+/**
+  * @brief  Funkcja sprawdzajaca czy zakonczono proces dekodowania
+  * @param  decoderGeneralStructure wzkaznik do decoderStructure
+  * @retval None
+  */
 uint8_t decoderIsEndDecode(decoderStructure *decoderGeneralStructure){
 	return decoderGeneralStructure->isEndDecode;
 }
+/**
+  * @brief  Funkcja zwracajaca wartosc zdekodowanej komendy
+  * @param  decoderGeneralStructure wzkaznik do decoderStructure
+  * @retval uint8_t zwraca wartosc komendy
+  */
 uint8_t decoderGetDecodeValue(decoderStructure *decoderGeneralStructure){
 	decoderGeneralStructure->isEndDecode=0;
 	return decoderGeneralStructure->decodeValue;
 
 }
-
+/**
+  * @brief  Funkcja czyszczaca strukture decoderStructure na potrzeby kolejnego dekodowania
+  * @param  decoderGeneralStructure wzkaznik do decoderStructure
+  * @retval None
+  */
 void decoderClearStructure(decoderStructure* decoderGeneralStructure) {
 	uint8_t sizeTableOdRejectedCommands = decoderGeneralStructure->sizeTableOdRejectedCommands;
 	
@@ -109,7 +143,11 @@ void decoderClearStructure(decoderStructure* decoderGeneralStructure) {
 	decoderGeneralStructure->positionOfDecodeCommand = 0;
 
 }
-
+/**
+  * @brief  Funkcja wyswietlajaca informacje o strukturze decoderStructure
+  * @param  decoderGeneralStructure wzkaznik do decoderStructure
+  * @retval None
+  */
 void decoderShowInfo(decoderStructure* decoderGeneralStructure) {
 	uint8_t sizeTableOdRejectedCommands = decoderGeneralStructure->sizeTableOdRejectedCommands;
 	printf("tableOfRejectedCommands:\n");
@@ -125,7 +163,11 @@ void decoderShowInfo(decoderStructure* decoderGeneralStructure) {
 	printf("positionOfDecodeCommand=%d\n", decoderGeneralStructure->positionOfDecodeCommand);
 
 }
-
+/**
+  * @brief  Funkcja wyswietlajaca informacje o strukturze decoderStructure
+  * @param  decoderGeneralStructure wzkaznik do decoderStructure
+  * @retval uint8_t dekoduje komende z tablicy char na wartosc liczbową
+  */
 uint8_t decoderGetDecodingEffect(decoderStructure* decoderGeneralStructure) {
 	uint32_t countRejectCommands = 0;
 	uint8_t sizeTableOdRejectedCommands = decoderGeneralStructure->sizeTableOdRejectedCommands;

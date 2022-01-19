@@ -1,11 +1,23 @@
-
+/**
+  ******************************************************************************
+  * @file    generalModule.c
+  * @author  Daniel Dunak, Michal Kuska
+  * @brief   Plik zrodlowy glownego modulu
+  *
+  ******************************************************************************
+  */
 #include <stdio.h>
 #include <stdlib.h>
 #include "stm32f4xx_hal.h"
 
 #include "generalModule.h"
 
-
+/**
+  * @brief  Funkcja inicalizujaca wszystkie taski, kolejki oraz peryferia
+  * @param  peripheralStruct wzkaznik do peripheralStruct
+  * @param  huart wzkaznik na strukture huart
+  * @retval None
+  */
 void generalModuleInit(controlPeripheralStruct *peripheralStruct,UART_HandleTypeDef *huart){
 	if(huart==0){
 		return;
@@ -53,17 +65,28 @@ void generalModuleInit(controlPeripheralStruct *peripheralStruct,UART_HandleType
 	decoderInitStructure(&decoderGeneralStructure);
 }
 
-
+/**
+ * @brief Funkcja dla przerwania od układu UART
+ * @param peripheralStruct wzkażnik do struktury controlPeripheralStruct
+ * @retval None
+ */
 void generalModuleUartRxInterrupt(controlPeripheralStruct *peripheralStruct){
 	xQueueSendFromISR(xQueueUartPCRx, peripheralStruct->pDataToRxhuart, pdFALSE);
 	generalModuleUartReceiveIt(peripheralStruct);
 }
 
-
+/**
+ * @brief Funkcja załączenia układu przerwania UART
+ * @param peripheralStruct wzkaznik do struktury controlPeripheralStruct
+ * @retval None
+ */
 void generalModuleUartReceiveIt(controlPeripheralStruct *peripheralStruct){
 	HAL_UART_Receive_IT(peripheralStruct->huart, peripheralStruct->pDataToRxhuart, peripheralStruct->sizepDataToRxHuart);
 }
-
+/**
+ * @brief Task do dekodowania danych
+ * @retval None
+ */
 void vTaskDecodeData(){
 	static uint8_t data;
 	while(1){
@@ -82,6 +105,10 @@ void vTaskDecodeData(){
 		vTaskDelay(1/portTICK_RATE_MS);
 	};
 }
+/**
+ * @brief Task do kontroli wejsc/wyjsc GPIO mikrokontrolera
+ * @retval None
+ */
 void vTaskGPIOController(){
 	static uint8_t data;
 	while (1){
@@ -91,6 +118,10 @@ void vTaskGPIOController(){
 		}
 	}
 }
+/**
+ * @brief Task do odpowiedzi po interfejsie UART
+ * @retval None
+ */
 void vTaskSendRespons(){
 	static uint8_t data;
 	while(1){
@@ -100,6 +131,11 @@ void vTaskSendRespons(){
 		vTaskDelay(1/portTICK_RATE_MS);
 	};
 }
+/**
+ * @brief Funkcja zastepująca wewnetrza funkcje __io_putchar wywoływaną przez prinf
+ * @param ch reprezentacja liczba znaku char
+ * @retval None
+ */
 int __io_putchar(int ch){
   if (ch == '\n') {
     __io_putchar('\r');
@@ -109,8 +145,8 @@ int __io_putchar(int ch){
   return 1;
 }
 /**
-  * @brief
-  * @param  uint8_t Komenda dekodera
+  * @brief Funkcja zmieniajaca stany I/O GPIO w zaleznosci od odebranego rozkazu
+  * @param  rozkaz Komenda dekodera
   * @retval None
   */
 void switchGPIO(uint8_t rozkaz){ //funkcja oczekuje na wartość int rozkazu pochodzącą z zewnętrznego źródła

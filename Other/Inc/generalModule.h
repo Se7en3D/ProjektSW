@@ -21,7 +21,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "decoder.h"
-#include "circularBuffer.h"
 #include "cmsis_os.h"
 
 /* Exported constants --------------------------------------------------------*/
@@ -39,7 +38,7 @@
 #endif
 
 /**
- * Struktura kontrolujaca interfejs UART
+ * @brief Struktura kontrolujaca interfejs UART
  */
 typedef struct{
 	UART_HandleTypeDef *huart;	/*!< Wzkażnik do struktury UART_HandleTypeDef*/
